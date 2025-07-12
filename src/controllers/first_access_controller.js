@@ -6,8 +6,7 @@ async function processFirstAccess(req, res) {
         await firstAccessServices.processFirstAccess(email)
         return res.status(200).json({message:"Token Enviado com Sucesso!"})
     } catch (error) {
-        console.log(error);
-        
+          
         return res.status(error.status || 400).json({message: error.message})
     }
 }

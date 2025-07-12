@@ -10,7 +10,6 @@ async function processFirstAccess(email){
    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 try {
    const emailExists = await firstAccessRepositories.findEmail(email)
-   console.log("emailExists:", emailExists);
    if(emailExists === null){
     throw new Error ("Email não cadastrado")}
     

@@ -7,29 +7,127 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model User {
   id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
   cpf       String   @unique
-  firm      Firm     @relation(fields: [firmId], references: [id])
   firmId    Int
+  firm      Firm     @relation(fields: [firmId], references: [id])
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
-  tokens    Token[] 
+  tokens    Token[]
 }
 
 model Token {
-  id        Int      @id @default(autoincrement())
-  token     String   @unique
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  token      String   @unique
+  createdAt  DateTime @default(now())
   expiresAt  DateTime
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
 }
 
 model Firm {
   id    Int    @id @default(autoincrement())
   name  String
   users User[]
+}
+
+model Employee {
+  id              Int                @id @default(autoincrement())
+  name            String
+  date_of_birth   DateTime
+  rg              String
+  cpf             String             @unique
+  drivers_license Boolean
+  occupation_id   Int
+  occupation      Occupation         @relation(fields: [occupation_id], references: [id])
+  admission_date  DateTime
+ 
+  password_hash      String?
+
+  phones          Phone[]
+  cnhs            Cnh[]
+  vacations       EmployeeVacation[]
+  project_team    ProjectTeam[]
+  address         Address?
+
+  @@map("employee")
+}
+
+
+model Phone {
+  id          Int       @id @default(autoincrement())
+  ddd         Int
+  phoneNumber BigInt
+  employee_id Int
+  employee    Employee  @relation(fields: [employee_id], references: [id])
+
+  @@map("phone")
+}
+
+model Cnh {
+  id                    Int       @id @default(autoincrement())
+  employee_id           Int
+  number_license        String
+  validity              DateTime
+  first_drivers_license DateTime
+  employee              Employee  @relation(fields: [employee_id], references: [id])
+
+  @@map("cnh")
+}
+
+model EmployeeVacation {
+  id            Int      @id @default(autoincrement())
+  employee_id   Int
+  vacation_days Int
+  employee      Employee @relation(fields: [employee_id], references: [id])
+
+  @@map("employee_vacation")
+}
+
+model Contracts {
+  id           Int           @id @default(autoincrement())
+  name_project String
+  start_date   DateTime
+  end_forecast Int
+  project_team ProjectTeam[]
+
+  @@map("contracts")
+}
+
+model ProjectTeam {
+  id           Int       @id @default(autoincrement())
+  contracts_id Int
+  employee_id  Int
+  active       Boolean
+  contract     Contracts @relation(fields: [contracts_id], references: [id])
+  employee     Employee  @relation(fields: [employee_id], references: [id])
+
+  @@map("project_team")
+}
+
+model Occupation {
+  id                        Int        @id @default(autoincrement())
+  name                      String     @unique
+  description_of_occupation String?
+  salary                    Float?
+  dangerousness             Boolean?
+  employees                 Employee[]
+}
+
+model Address {
+  id              Int       @id @default(autoincrement())
+  zip_code        String?
+  street_name     String?
+  number_of_house Int
+  city            String
+  state           String
+  country         String
+  employee_id     Int       @unique
+  employee        Employee  @relation(fields: [employee_id], references: [id])
+
+  @@map("address")
 }
